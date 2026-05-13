@@ -13,7 +13,7 @@ import { IS_PUBLIC_KEY } from './setMetadata';
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private reflector: Reflector,
+    private readonly reflector: Reflector,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -32,9 +32,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      console.log(payload);
       request['user'] = payload;
-      console.log(payload);
     } catch {
       throw new UnauthorizedException();
     }
@@ -42,7 +40,6 @@ export class AuthGuard implements CanActivate {
   }
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    // FIXME
     return type == 'Bearer' ? token : undefined;
   }
 }
