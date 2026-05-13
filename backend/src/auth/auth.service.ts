@@ -1,31 +1,53 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
+
+  async hashPassword(password: string): Promise<string> {
+    const saltOrRounds = 10;
+    return await bcrypt.hash(password, saltOrRounds);
+  }
+
+  async signUp(
+    username: string,
+    password: string,
+  ): Promise<{ message: string }> {
+    const existingUser = await this.usersService.findOne(username);
+    if (existingUser) {
+      throw new ConflictException('Username has already taken');
+    }
+    const hashedPassword = await this.hashPassword(password);
+    await this.usersService.add(username, hashedPassword);
+    return { message: 'User created' };
+  }
 
   async signIn(
     username: string,
     pass: string,
   ): Promise<{ access_token: string }> {
     const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const isMatch = await bcrypt.compare(pass, user.password);
+
+    if (!isMatch) {
       throw new UnauthorizedException();
     }
     const payload = { sub: user.userId, username: user.username };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
-  }
-
-  // FIXME generate manyacount from one username
-  async signUp(username: string, password: string): Promise<string | any> {
-    await this.usersService.add(username, password);
-    return { message: 'User created' };
   }
 }
