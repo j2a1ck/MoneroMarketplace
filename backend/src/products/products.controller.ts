@@ -1,0 +1,55 @@
+import {
+  Controller,
+  Body,
+  HttpStatus,
+  HttpCode,
+  Get,
+  Post,
+  UseGuards,
+  Query,
+  Patch,
+  Delete,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Public } from 'src/auth/setMetadata';
+import { ProductsService } from './products.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+
+@Controller('products')
+export class ProductsController {
+  constructor(private readonly productService: ProductsService) {}
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Get('/')
+  listOfProducts(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.productService.listOfProducts(+page, +limit);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete('/:id')
+  @HttpCode(HttpStatus.OK)
+  deleteProduct(@Param('id', ParseIntPipe) productId: number) {
+    return this.productService.deleteProduct(productId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('/:id')
+  @HttpCode(HttpStatus.OK)
+  editProduct(
+    @Param('id', ParseIntPipe) productId: number,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return this.productService.editProduct(productId, updateProductDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/create')
+  @HttpCode(HttpStatus.CREATED)
+  createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productService.createProduct(createProductDto);
+  }
+}
