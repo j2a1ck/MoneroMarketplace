@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Product } from './product.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 
 @Injectable()
@@ -51,5 +51,24 @@ export class ProductsService {
     createProductData: CreateProductDto,
   ): Promise<Product | null> {
     return this.productRepository.save(createProductData);
+  }
+
+  async searchProduct(query: string, page: number = 1){
+    const take = 10;
+    const skip = (page - 1) * take;
+    const [data, total] = await this.productRepository.findAndCount({
+      order: { createdAt: 'DESC' },
+      where: {
+        title: ILike(`%${query}%`),
+      },
+      take,
+      skip,
+    });
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / take),
+    };
   }
 }

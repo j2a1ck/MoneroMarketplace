@@ -17,6 +17,7 @@ import { Public } from 'src/auth/setMetadata';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { SearchProductDto } from './dto/search-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -51,5 +52,15 @@ export class ProductsController {
   @HttpCode(HttpStatus.CREATED)
   createProduct(@Body() createProductDto: CreateProductDto) {
     return this.productService.createProduct(createProductDto);
+  }
+
+  @Public()
+  @Get('/search')
+  @HttpCode(HttpStatus.ACCEPTED)
+  searchProduct(@Query() searchProductDto: SearchProductDto) {
+    return this.productService.searchProduct(
+      searchProductDto.q,
+      searchProductDto.page,
+    );
   }
 }
