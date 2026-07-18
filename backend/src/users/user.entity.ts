@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  CreateDateColumn,
+} from 'typeorm';
 import { Product } from '../products/product.entity';
 import { Comment } from 'src/products/comment.entity';
 @Entity()
@@ -11,6 +17,12 @@ export class User {
 
   @Column()
   password: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ type: 'bytea', nullable: true })
+  profile?: Buffer;
 
   @Column({ type: 'float', nullable: true })
   rate: number;

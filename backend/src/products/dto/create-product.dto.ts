@@ -4,7 +4,6 @@ import {
   Min,
   Max,
   IsOptional,
-  IsUrl,
   MinLength,
   MaxLength,
 } from 'class-validator';
@@ -21,9 +20,8 @@ export class CreateProductDto {
   description: string;
 
   @IsOptional()
-  //FIXME upload pic && upload mulitple also for PATCH method
-  @IsUrl({}, { message: 'Image URL must be a valid URL' })
-  pic: string;
+  //FIXME upload pic && upload multiple also for PATCH method
+  pic?: Buffer;
 
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Discount must be a number' })
   @Min(0, { message: 'Discount cannot be less than 0' })

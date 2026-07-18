@@ -13,7 +13,11 @@ export class UsersService {
     return this.userRepository.findOne({ where: { username } });
   }
 
-  async add(username: string, password: string): Promise<User | null> {
-    return this.userRepository.save({ username, password });
+  async add(username: string, password: string, file: Express.Multer.File): Promise<User | null> {
+    return this.userRepository.save({
+      username,
+      password,
+      profile: file.buffer,
+    });
   }
 }

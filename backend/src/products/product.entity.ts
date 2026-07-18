@@ -23,8 +23,8 @@ export class Product {
   @Column()
   description: string;
 
-  @Column({ nullable: true })
-  pic: string;
+  @Column({type: "bytea", nullable: true })
+  pic?: Buffer;
 
   @Column('decimal')
   discount: number;

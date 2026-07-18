@@ -23,9 +23,8 @@ export class UpdateProductDto {
   description: string;
 
   @IsOptional()
-  //FIXME upload pic && upload mulitple also for PATCH method
-  @IsUrl({}, { message: 'Image URL must be a valid URL' })
-  pic: string;
+  //FIXME upload pic && upload multiple also for PATCH method
+  pic?: Buffer;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Discount must be a number' })

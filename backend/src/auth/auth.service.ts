@@ -7,6 +7,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+// FXIME: improve error command for brute force attack
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,13 +23,14 @@ export class AuthService {
   async signUp(
     username: string,
     password: string,
+    file: Express.Multer.File,
   ): Promise<{ message: string }> {
     const existingUser = await this.usersService.findOne(username);
     if (existingUser) {
       throw new ConflictException('Username has already taken');
     }
     const hashedPassword = await this.hashPassword(password);
-    await this.usersService.add(username, hashedPassword);
+    await this.usersService.add(username, hashedPassword, file);
     return { message: 'User created' };
   }
 

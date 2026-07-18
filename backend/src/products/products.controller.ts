@@ -11,6 +11,9 @@ import {
   Delete,
   Param,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Public } from 'src/auth/setMetadata';
@@ -18,6 +21,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductDto } from './dto/search-product.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileSizeValidationPipe } from 'src/comman/pipe/file-size-validation.pipe';
 
 @Controller('products')
 export class ProductsController {
@@ -49,9 +54,17 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Post('/create')
+  @UseInterceptors(FileInterceptor('pic'))
   @HttpCode(HttpStatus.CREATED)
-  createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productService.createProduct(createProductDto);
+  createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @Req() req,
+    @UploadedFile(new FileSizeValidationPipe()) pic?: Express.Multer.File,
+  ) {
+    if (pic) {
+      createProductDto.pic = pic.buffer;
+    }
+    return this.productService.createProduct(createProductDto, req.user);
   }
 
   @Public()
