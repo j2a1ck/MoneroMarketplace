@@ -1,4 +1,5 @@
 import { BadRequestException, PipeTransform } from '@nestjs/common';
+import 'multer';
 
 export class FileSizeValidationPipe implements PipeTransform {
   transform(file: Express.Multer.File | undefined) {
