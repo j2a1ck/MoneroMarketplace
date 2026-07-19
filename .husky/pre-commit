@@ -1,0 +1,3 @@
+pnpm format
+pnpm run lint:src
+pnpm test

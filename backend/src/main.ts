@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-// import 'dotenv/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +9,6 @@ async function bootstrap() {
   app.use(helmet());
   //FIXME for production
   app.enableCors();
-  await app.listen(3001);
+  await app.listen(Number(process.env.PORT));
 }
-bootstrap();
+void bootstrap();

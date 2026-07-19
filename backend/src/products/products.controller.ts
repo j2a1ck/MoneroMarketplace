@@ -22,7 +22,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductDto } from './dto/search-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileSizeValidationPipe } from 'src/comman/pipe/file-size-validation.pipe';
+import { FileSizeValidationPipe } from 'src/common/pipe/file-size-validation.pipe';
+import { JwtUser } from 'src/common/types/jwt-user.type';
 
 @Controller('products')
 export class ProductsController {
@@ -58,13 +59,13 @@ export class ProductsController {
   @HttpCode(HttpStatus.CREATED)
   createProduct(
     @Body() createProductDto: CreateProductDto,
-    @Req() req,
+    @Req() req: JwtUser,
     @UploadedFile(new FileSizeValidationPipe()) pic?: Express.Multer.File,
   ) {
     if (pic) {
       createProductDto.pic = pic.buffer;
     }
-    return this.productService.createProduct(createProductDto, req.user);
+    return this.productService.createProduct(createProductDto, req);
   }
 
   @Public()

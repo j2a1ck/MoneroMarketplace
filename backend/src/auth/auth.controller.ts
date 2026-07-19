@@ -16,7 +16,8 @@ import { Public } from './setMetadata';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileSizeValidationPipe } from 'src/comman/pipe/file-size-validation.pipe';
+import { FileSizeValidationPipe } from 'src/common/pipe/file-size-validation.pipe';
+import { JwtUser } from 'src/common/types/jwt-user.type';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +48,7 @@ export class AuthController {
   //FIXME return reputation and profile  and ... except password
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: JwtUser) {
     return req.user;
   }
 }

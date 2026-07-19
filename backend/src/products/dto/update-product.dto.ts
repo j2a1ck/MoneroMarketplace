@@ -4,7 +4,6 @@ import {
   Min,
   Max,
   IsOptional,
-  IsUrl,
   MinLength,
   MaxLength,
 } from 'class-validator';

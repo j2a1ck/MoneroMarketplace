@@ -4,6 +4,7 @@ backend/node_modules
 web/node_modules
 backend/constants.ts
 /build
+/backend/coverage
 
 # Logs
 logs
