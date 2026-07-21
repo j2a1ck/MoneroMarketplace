@@ -3,6 +3,7 @@ import { Product } from './product.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtUser } from 'src/common/types/jwt-user.type';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -26,15 +27,29 @@ export class ProductsService {
     };
   }
 
-  async editProduct(productId: number, updateProductData: Partial<Product>) {
+  async editProduct(
+    productId: number,
+    updateProductData: UpdateProductDto,
+    user: JwtUser,
+  ) {
     const result = await this.productRepository.update(
-      productId,
+      {
+        productId,
+        user: {
+          userId: user.user.sub,
+        },
+      },
       updateProductData,
     );
     if (result.affected === 0) {
       throw new NotFoundException(`Product #${productId} not found`);
     }
-    return this.productRepository.findOneBy({ productId });
+    return this.productRepository.findOneBy({
+      productId,
+      user: {
+        userId: user.user.sub,
+      },
+    });
   }
 
   async deleteProduct(productId: number) {

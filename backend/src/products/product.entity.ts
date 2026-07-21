@@ -23,11 +23,12 @@ export class Product {
   @Column()
   description: string;
 
-  @Column({ type: 'bytea', nullable: true })
-  pic?: Buffer;
-
-  @Column('decimal')
-  discount: number;
+  @Column({
+    type: 'bytea',
+    array: true,
+    nullable: true,
+  })
+  pics?: Buffer[];
 
   @Column({ type: 'float', nullable: true })
   rate: number;

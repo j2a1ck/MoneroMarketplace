@@ -12,8 +12,8 @@ import {
   Param,
   ParseIntPipe,
   UseInterceptors,
-  UploadedFile,
   Req,
+  UploadedFiles,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Public } from 'src/auth/setMetadata';
@@ -21,9 +21,9 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SearchProductDto } from './dto/search-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { FileSizeValidationPipe } from 'src/common/pipe/file-size-validation.pipe';
 import { JwtUser } from 'src/common/types/jwt-user.type';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
@@ -45,25 +45,33 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Patch('/:id')
+  @UseInterceptors(FilesInterceptor('pics', 6))
   @HttpCode(HttpStatus.OK)
   editProduct(
     @Param('id', ParseIntPipe) productId: number,
+    @Req() req: JwtUser,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles(new FileSizeValidationPipe())
+    pics?: Array<Express.Multer.File>,
   ) {
-    return this.productService.editProduct(productId, updateProductDto);
+    if (pics) {
+      updateProductDto.pics = pics.map((file) => file.buffer);
+    }
+    return this.productService.editProduct(productId, updateProductDto, req);
   }
 
   @UseGuards(AuthGuard)
   @Post('/create')
-  @UseInterceptors(FileInterceptor('pic'))
+  @UseInterceptors(FilesInterceptor('pics', 6))
   @HttpCode(HttpStatus.CREATED)
   createProduct(
     @Body() createProductDto: CreateProductDto,
     @Req() req: JwtUser,
-    @UploadedFile(new FileSizeValidationPipe()) pic?: Express.Multer.File,
+    @UploadedFiles(new FileSizeValidationPipe())
+    pics?: Array<Express.Multer.File>,
   ) {
-    if (pic) {
-      createProductDto.pic = pic.buffer;
+    if (pics) {
+      createProductDto.pics = pics.map((file) => file.buffer);
     }
     return this.productService.createProduct(createProductDto, req);
   }

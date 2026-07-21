@@ -2,7 +2,6 @@ import {
   IsString,
   IsNumber,
   Min,
-  Max,
   IsOptional,
   MinLength,
   MaxLength,
@@ -20,14 +19,7 @@ export class CreateProductDto {
   description: string;
 
   @IsOptional()
-  //FIXME upload pic && upload multiple also for PATCH method
-  pic?: Buffer;
-
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Discount must be a number' })
-  @Min(0, { message: 'Discount cannot be less than 0' })
-  @Max(100, { message: 'Discount cannot exceed 100' })
-  @Type(() => Number)
-  discount: number;
+  pics?: Buffer[];
 
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Price must be a number' })
   @Min(0, { message: 'Price cannot be negative' })

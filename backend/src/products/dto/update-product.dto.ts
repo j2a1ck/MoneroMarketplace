@@ -22,15 +22,7 @@ export class UpdateProductDto {
   description: string;
 
   @IsOptional()
-  //FIXME upload pic && upload multiple also for PATCH method
-  pic?: Buffer;
-
-  @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Discount must be a number' })
-  @Min(0, { message: 'Discount cannot be less than 0' })
-  @Max(100, { message: 'Discount cannot exceed 100' })
-  @Type(() => Number)
-  discount: number;
+  pics?: Buffer[];
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Price must be a number' })
