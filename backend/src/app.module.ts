@@ -7,6 +7,7 @@ import { ProductsModule } from './products/products.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { OrdersModule } from './orders/orders.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -21,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UsersModule,
     ProductsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [
