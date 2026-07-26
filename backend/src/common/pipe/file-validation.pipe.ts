@@ -2,8 +2,9 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import 'multer';
 import { fileTypeFromBuffer } from 'file-type';
 
+//FIXME change file name
 @Injectable()
-export class FileSizeValidationPipe implements PipeTransform {
+export class ImageValidationPipe implements PipeTransform {
   async transform(files?: Express.Multer.File | Express.Multer.File[]) {
     if (!files) {
       return files;

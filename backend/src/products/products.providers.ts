@@ -4,7 +4,7 @@ import { Product } from './product.entity';
 export const productProvider = [
   {
     provide: 'PRODUCT_REPOSITORY',
-    useFactory: (datasource: DataSource) => datasource.getRepository(Product),
+    useFactory: (dataSource: DataSource) => dataSource.getRepository(Product),
     inject: ['DATA_SOURCE'],
   },
 ];

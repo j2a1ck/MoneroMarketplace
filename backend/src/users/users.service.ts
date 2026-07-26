@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import 'multer';
@@ -10,18 +10,22 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findOne(username: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { username } });
+  async findOne(username: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new NotFoundException("Can't find that User");
+    }
+    return user;
   }
 
   async add(
     username: string,
-    password: string,
+    hashedPassword: string,
     file: Express.Multer.File,
   ): Promise<User | null> {
     return this.userRepository.save({
       username,
-      password,
+      hashedPassword,
       profile: file.buffer,
     });
   }
