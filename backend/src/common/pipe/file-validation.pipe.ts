@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import 'multer';
 import { fileTypeFromBuffer } from 'file-type';
 
-//FIXME change file name
 @Injectable()
 export class ImageValidationPipe implements PipeTransform {
   async transform(files?: Express.Multer.File | Express.Multer.File[]) {
@@ -12,12 +11,12 @@ export class ImageValidationPipe implements PipeTransform {
 
     const fileArray = Array.isArray(files) ? files : [files];
 
-    const fiveMb = 5 * 1024 * 1024;
+    const FIVE_MB = 5 * 1024 * 1024;
 
     const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
 
     for (const file of fileArray) {
-      if (file.size > fiveMb) {
+      if (file.size > FIVE_MB) {
         throw new BadRequestException('File size must be less than 5 MB');
       }
 

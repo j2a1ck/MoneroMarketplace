@@ -1,11 +1,9 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
-  Request,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -16,8 +14,8 @@ import { Public } from './setMetadata';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileSizeValidationPipe } from 'src/common/pipe/file-size-validation.pipe';
-import { JwtUser } from 'src/common/types/jwt-user.type';
+import { ImageValidationPipe } from 'src/common/pipe/file-validation.pipe';
+import { UserId } from 'src/common/decorators/user-id.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,24 +29,24 @@ export class AuthController {
   }
 
   @Public()
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('picture'))
   signUp(
     @Body() signUpDto: SignUpDto,
-    @UploadedFile(new FileSizeValidationPipe()) file: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe())
+    picture?: Express.Multer.File,
   ) {
-    console.log(file);
     return this.authService.signUp(
       signUpDto.username,
       signUpDto.password,
-      file,
+      picture,
     );
   }
-  //FIXME return reputation and profile  and ... except password
+
   @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Request() req: JwtUser) {
-    return req.user;
+  @Post('/me')
+  getProfile(@UserId() userId: number) {
+    return this.authService.getProfile(userId);
   }
 }

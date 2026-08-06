@@ -3,6 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
+jest.mock('../common/pipe/file-validation.pipe', () => ({
+  ImageValidationPipe: class ImageValidationPipe {},
+}));
+
 describe('AuthController', () => {
   let controller: AuthController;
 
