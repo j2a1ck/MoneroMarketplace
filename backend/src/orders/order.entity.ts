@@ -14,6 +14,7 @@ export enum OrderStatus {
   SHIPPED = 'SHIPPED',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED',
+  ACCEPTED = 'ACCEPTED',
 }
 @Entity()
 export class Order {
@@ -25,6 +26,9 @@ export class Order {
 
   @ManyToOne(() => User)
   buyer: User;
+
+  @ManyToOne(() => User)
+  seller: User;
 
   @Column({
     type: 'enum',
