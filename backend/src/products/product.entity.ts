@@ -27,9 +27,11 @@ export class Product {
     type: 'bytea',
     array: true,
     nullable: true,
+    select: false,
   })
   pics?: Buffer[];
 
+  //FIXME should get all rate and return one final rate
   @Column({ type: 'float', nullable: true })
   rate: number;
 
@@ -43,13 +45,12 @@ export class Product {
   @Exclude()
   @DeleteDateColumn()
   deletedAt: Date;
-
   @OneToMany(() => Comment, (comment) => comment.product)
   comments: Comment[];
 
   @ManyToOne(() => User, (user) => user.products, {
-    onDelete: 'CASCADE',
+    onDelete: 'RESTRICT',
     eager: false,
   })
-  user: User;
+  seller: User;
 }

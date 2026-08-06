@@ -16,6 +16,7 @@ export class CreateProductDto {
 
   @IsString({ message: 'Description must be a string' })
   @MinLength(10, { message: 'Description must be at least 10 characters' })
+  @MaxLength(5000, { message: 'Description must not exceed 5000 characters' })
   description: string;
 
   @IsOptional()
