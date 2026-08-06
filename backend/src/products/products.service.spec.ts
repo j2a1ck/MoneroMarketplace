@@ -1,34 +1,47 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
-import { Repository } from 'typeorm';
 import { Product } from './product.entity';
+import { Comment } from './comment.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
-const mockRepository = () => ({
+export const mockProductRepository = () => ({
   findAndCount: jest.fn(),
   update: jest.fn(),
   softDelete: jest.fn(),
   findOneBy: jest.fn(),
   save: jest.fn(),
+  create: jest.fn(),
+});
+
+export const mockCommentRepository = () => ({
+  create: jest.fn(),
+  save: jest.fn(),
 });
 
 describe('ProductsService', () => {
   let service: ProductsService;
-  let repository: jest.Mocked<Repository<Product>>;
+  let productRepository: ReturnType<typeof mockProductRepository>;
 
   beforeEach(async () => {
+    productRepository = mockProductRepository();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductsService,
         {
-          provide: 'PRODUCT_REPOSITORY',
-          useFactory: mockRepository,
+          provide: getRepositoryToken(Product),
+          useValue: productRepository,
+        },
+        {
+          provide: getRepositoryToken(Comment),
+          useValue: mockCommentRepository(),
         },
       ],
     }).compile();
 
     service = module.get<ProductsService>(ProductsService);
-    repository = module.get('PRODUCT_REPOSITORY');
   });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -39,18 +52,25 @@ describe('ProductsService', () => {
 
   describe('listOfProducts', () => {
     it('should return paginated products', async () => {
-      repository.findAndCount.mockResolvedValue([
-        [{ id: 1, title: 'p1' } as any],
-        1,
-      ]);
+      const products = [
+        {
+          productId: 1,
+          title: 'p1',
+        },
+      ] satisfies Partial<Product>[];
+
+      productRepository.findAndCount.mockResolvedValue([products, 1]);
+
       const result = await service.listOfProducts(1, 10);
-      expect(repository.findAndCount).toHaveBeenCalledWith({
+
+      expect(productRepository.findAndCount).toHaveBeenCalledWith({
         order: { createdAt: 'DESC' },
         take: 10,
         skip: 0,
       });
+
       expect(result).toEqual({
-        data: [{ id: 1, title: 'p1' }],
+        data: products,
         total: 1,
         page: 1,
         lastPage: 1,
@@ -58,56 +78,101 @@ describe('ProductsService', () => {
     });
   });
 
-  describe('editProducts', () => {
+  describe('editProduct', () => {
     it('should update product and return it', async () => {
-      repository.update.mockResolvedValue({ affected: 1 } as any);
-      repository.findOneBy.mockResolvedValue({
+      const updatedProduct = {
         productId: 1,
         title: 'updated',
-      } as any);
+      } satisfies Partial<Product>;
 
-      const result = await service.editProduct(1, { title: 'update' });
-
-      expect(repository.update).toHaveBeenCalledWith(1, { title: 'update' });
-
-      expect(repository.findOneBy).toHaveBeenCalledWith({ productId: 1 });
-
-      expect(result).toEqual({
-        productId: 1,
-        title: 'updated',
+      productRepository.update.mockResolvedValue({
+        affected: 1,
       });
+
+      productRepository.findOneBy.mockResolvedValue(updatedProduct);
+
+      const result = await service.editProduct(
+        1,
+        {
+          title: 'update',
+          description: 'updated description',
+          price: 100,
+        },
+        1,
+      );
+      expect(productRepository.update).toHaveBeenCalledWith(
+        {
+          productId: 1,
+          seller: {
+            userId: 1,
+          },
+        },
+        {
+          title: 'update',
+          description: 'updated description',
+          price: 100,
+        },
+      );
+      expect(productRepository.findOneBy).toHaveBeenCalledWith({
+        productId: 1,
+        seller: {
+          userId: 1,
+        },
+      });
+
+      expect(result).toEqual(updatedProduct);
     });
   });
 
-  describe('deleteProducts', () => {
+  describe('deleteProduct', () => {
     it('should soft delete product', async () => {
-      repository.softDelete.mockResolvedValue({ affected: 1 } as any);
+      productRepository.softDelete.mockResolvedValue({
+        affected: 1,
+      });
 
-      const result = await service.deleteProduct(1);
+      const result = await service.deleteProduct(1, 1);
 
-      expect(repository.softDelete).toHaveBeenCalledWith(1);
+      expect(productRepository.softDelete).toHaveBeenCalledWith({
+        productId: 1,
+        seller: {
+          userId: 1,
+        },
+      });
 
       expect(result).toEqual({
-        message: 'Product deleted successfully',
-        id: 1,
+        message: 'Product has been deleted',
       });
     });
   });
 
-  describe('createProducts', () => {
+  describe('createProduct', () => {
     it('should create product', async () => {
-      repository.save.mockResolvedValue({
-        productId: 1,
+      const dto = {
         title: 'new product',
-      } as any);
+        description: 'product description',
+        price: 100,
+      };
 
-      const dto = { title: 'new product' } as any;
-      const result = await service.createProduct(dto);
-      expect(repository.save).toHaveBeenCalledWith(dto);
-      expect(result).toEqual({
+      const product = {
         productId: 1,
         title: 'new product',
+      } satisfies Partial<Product>;
+
+      productRepository.create.mockReturnValue(product);
+      productRepository.save.mockResolvedValue(product);
+
+      const result = await service.createProduct(dto, 1, []);
+      expect(productRepository.create).toHaveBeenCalledWith({
+        ...dto,
+        pics: [],
+        seller: {
+          userId: 1,
+        },
       });
+
+      expect(productRepository.save).toHaveBeenCalledWith(product);
+
+      expect(result).toEqual(product);
     });
   });
 });
