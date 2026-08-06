@@ -1,10 +1,8 @@
 # compiled output
-backend/dist
-backend/node_modules
-web/node_modules
-backend/constants.ts
+dist
+node_modules
 /build
-/backend/coverage
+/coverage
 
 # Logs
 logs
