@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: backend
 jobs:
   test:
     runs-on: ubuntu-latest
