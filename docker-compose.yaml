@@ -7,28 +7,40 @@ services:
     container_name: crypto-marketplace-backend
 
     ports:
-      - "3000:3000"
+      - '3000:3000'
 
     env_file:
-      - .env.docker
+      - .env
 
     depends_on:
-      - postgres
+      - postgres_cryptoMarketPlace
 
-  postgres:
+  postgres_cryptoMarketPlace:
     image: postgres:latest
     container_name: postgres_cryptoMarketPlace
     restart: unless-stopped
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  grafana:
+    image: focker.ir/docker.io/grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - '3001:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: no
+
 volumes:
   postgres_data:
     name: postgres_data_volume
+
+  grafana_data:
+    name: grafana_data_volume
